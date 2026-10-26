@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="The Floor — Your direct, no-BS financial coach. Know your numbers. Stop bleeding money." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>The Floor</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1c1c1c;
+      --border: #2a2a2a;
+      --text: #f5f5f5;
+      --muted: #888;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --blue: #3b82f6;
+      --radius: 12px;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+      overscroll-behavior: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      margin: 0 auto;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    /* Header */
+    header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Tabs */
+    nav {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 57px;
+      z-index: 40;
+    }
+
+    nav button {
+      flex: 1;
+      padding: 12px 4px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s;
+    }
+
+    nav button.active {
+      color: var(--text);
+    }
+
+    nav button.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: var(--green);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 100px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    /* Free to Spend Hero */
+    .hero {
+      text-align: center;
+      padding: 24px 16px;
+      background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    .hero .label {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .hero .amount {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .hero .amount.positive { color: var(--green); }
+    .hero .amount.negative { color: var(--red); }
+    .hero .amount.zero { color: var(--muted); }
+
+    .hero .sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Number rows */
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .row .label {
+      font-size: 15px;
+    }
+
+    .row .value {
+      font-size: 15px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .row .value.green { color: var(--green); }
+    .row .value.red { color: var(--red); }
+    .row .value.amber { color: var(--amber); }
+
+    /* Inputs */
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 16px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #444;
+    }
+
+    .field input[type="number"] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #000;
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-row .btn {
+      flex: 1;
+    }
+
+    /* Goals */
+    .goal {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .goal:last-child {
+      border-bottom: none;
+    }
+
+    .goal .check {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      margin-top: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .goal.done .check {
+      background: var(--green);
+      border-color: var(--green);
+      color: #000;
+    }
+
+    .goal.done .goal-title {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .goal-title {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .goal-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Log */
+    .log-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .log-amount {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .log-amount.spend { color: var(--red); }
+    .log-amount.save { color: var(--green); }
+
+    .log-note {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .log-date {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Coach */
+    .coach-msg {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .coach-msg strong {
+      color: var(--green);
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Install banner */
+    .install-banner {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .install-banner.show {
+      display: block;
+    }
+
+    .install-banner p {
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #222;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.25s;
+      z-index: 100;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px 16px calc(20px + var(--safe-bottom));
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal h3 {
+      font-size: 17px;
+      margin-bottom: 16px;
+    }
+
+    /* Utility */
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .text-muted { color: var(--muted); }
+    .text-sm { font-size: 13px; }
+    .text-center { text-align: center; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>The Floor</h1>
+    <p>Know your numbers. Stop the leaks.</p>
+  </header>
+
+  <nav>
+    <button class="active" data-tab="numbers">Numbers</button>
+    <button data-tab="goals">Goals</button>
+    <button data-tab="log">Log</button>
+    <button data-tab="coach">Coach</button>
+  </nav>
+
+  <main>
+    <!-- NUMBERS PANEL -->
+    <div class="panel active" id="panel-numbers">
+      <div class="install-banner" id="installBanner">
+        <p><strong>Add to your iPhone</strong> for one-tap access. Open in Safari → Share → Add to Home Screen.</p>
+        <button class="btn btn-secondary" onclick="hideInstall()">Got it</button>
+      </div>
+
+      <div class="hero">
+        <div class="label">Free to Spend this month</div>
+        <div class="amount" id="freeToSpend">$0</div>
+        <div class="sub" id="freeSub">Set your numbers below</div>
+      </div>
+
+      <div class="card">
+        <h2>This Month</h2>
+        <div class="row">
+          <span class="label">Income</span>
+          <span class="value green" id="displayIncome">$0</span>
+        </div>
+        <div class="row">
+          <span class="label">Fixed Costs</span>
+          <span class="value red" id="displayFixed">$0</span>
+        </div>
+        <div class="row">
+          <span class="label">Variable / Spent</span>
+          <span class="value red" id="displayVariable">$0</span>
+        </div>
+        <div class="row">
+          <span class="label">Net</span>
+          <span class="value" id="displayNet">$0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Edit Numbers</h2>
+        <div class="field">
+          <label>Monthly Income (after tax)</label>
+          <input type="number" id="inputIncome" inputmode="decimal" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Fixed Costs (rent, bills, debt, etc.)</label>
+          <input type="number" id="inputFixed" inputmode="decimal" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Already Spent / Variable this month</label>
+          <input type="number" id="inputVariable" inputmode="decimal" placeholder="0" />
+        </div>
+        <button class="btn btn-primary" onclick="saveNumbers()">Save Numbers</button>
+      </div>
+    </div>
+
+    <!-- GOALS PANEL -->
+    <div class="panel" id="panel-goals">
+      <div class="card">
+        <h2>Active Goals</h2>
+        <div id="goalsList"></div>
+        <div class="empty hidden" id="goalsEmpty">No goals yet. Add one below.</div>
+      </div>
+
+      <div class="card">
+        <h2>Add Goal</h2>
+        <div class="field">
+          <label>What are you saving for?</label>
+          <input type="text" id="goalTitle" placeholder="e.g. Ireland wedding fund" />
+        </div>
+        <div class="field">
+          <label>Target amount ($)</label>
+          <input type="number" id="goalAmount" inputmode="decimal" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Current saved ($)</label>
+          <input type="number" id="goalCurrent" inputmode="decimal" placeholder="0" />
+        </div>
+        <button class="btn btn-primary" onclick="addGoal()">Add Goal</button>
+      </div>
+    </div>
+
+    <!-- LOG PANEL -->
+    <div class="panel" id="panel-log">
+      <div class="card">
+        <h2>Decision Log</h2>
+        <p class="text-sm text-muted" style="margin-bottom:12px">Every time you spend or save intentionally, log it. Patterns show up fast.</p>
+        <div id="logList"></div>
+        <div class="empty hidden" id="logEmpty">No entries yet.</div>
+      </div>
+
+      <div class="card">
+        <h2>Log Entry</h2>
+        <div class="field">
+          <label>Type</label>
+          <select id="logType">
+            <option value="spend">Spent</option>
+            <option value="save">Saved / Didn't spend</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Amount ($)</label>
+          <input type="number" id="logAmount" inputmode="decimal" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>What happened?</label>
+          <input type="text" id="logNote" placeholder="e.g. Skipped DoorDash, cooked instead" />
+        </div>
+        <button class="btn btn-primary" onclick="addLog()">Log It</button>
+      </div>
+    </div>
+
+    <!-- COACH PANEL -->
+    <div class="panel" id="panel-coach">
+      <div class="card">
+        <h2>Straight Talk</h2>
+        <div id="coachContent">
+          <div class="coach-msg">
+            Set your income and fixed costs on the Numbers tab. Once I have real numbers, the coaching gets specific and uncomfortable — in a good way.
+          </div>
+        </div>
+        <button class="btn btn-secondary mt-12" onclick="refreshCoach()">Refresh Assessment</button>
+      </div>
+
+      <div class="card">
+        <h2>Quick Reality Checks</h2>
+        <div class="coach-msg">
+          <strong>Rule 1:</strong> If you don't know your free-to-spend number, you're flying blind. Fix that first.
+        </div>
+        <div class="coach-msg">
+          <strong>Rule 2:</strong> Fixed costs should leave room to breathe. If they don't, the problem is structural, not willpower.
+        </div>
+        <div class="coach-msg">
+          <strong>Rule 3:</strong> Logging decisions is more useful than most budgets. Patterns don't lie.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────
+    const STORAGE_KEY = 'thefloor_v1';
+
+    let state = {
+      income: 0,
+      fixed: 0,
+      variable: 0,
+      goals: [],
+      log: [],
+      installDismissed: false
+    };
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = { ...state, ...parsed };
+        }
+      } catch (e) {}
+      render();
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────
+    function fmt(n) {
+      const num = Number(n) || 0;
+      return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    function freeToSpend() {
+      return (Number(state.income) || 0) - (Number(state.fixed) || 0) - (Number(state.variable) || 0);
+    }
+
+    // ─── Render ──────────────────────────────────────────────
+    function render() {
+      // Numbers
+      const free = freeToSpend();
+      const freeEl = document.getElementById('freeToSpend');
+      freeEl.textContent = fmt(free);
+      freeEl.className = 'amount ' + (free > 0 ? 'positive' : free < 0 ? 'negative' : 'zero');
+
+      document.getElementById('freeSub').textContent =
+        free > 0 ? 'Available after fixed + already spent' :
+        free < 0 ? 'You are underwater this month' :
+        'Break-even or not set';
+
+      document.getElementById('displayIncome').textContent = fmt(state.income);
+      document.getElementById('displayFixed').textContent = fmt(state.fixed);
+      document.getElementById('displayVariable').textContent = fmt(state.variable);
+
+      const net = (Number(state.income) || 0) - (Number(state.fixed) || 0) - (Number(state.variable) || 0);
+      const netEl = document.getElementById('displayNet');
+      netEl.textContent = fmt(net);
+      netEl.className = 'value ' + (net >= 0 ? 'green' : 'red');
+
+      // Pre-fill inputs if empty
+      if (!document.getElementById('inputIncome').value && state.income) {
+        document.getElementById('inputIncome').value = state.income || '';
+        document.getElementById('inputFixed').value = state.fixed || '';
+        document.getElementById('inputVariable').value = state.variable || '';
+      }
+
+      // Goals
+      const goalsList = document.getElementById('goalsList');
+      const goalsEmpty = document.getElementById('goalsEmpty');
+      if (!state.goals.length) {
+        goalsList.innerHTML = '';
+        goalsEmpty.classList.remove('hidden');
+      } else {
+        goalsEmpty.classList.add('hidden');
+        goalsList.innerHTML = state.goals.map((g, i) => {
+          const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
+          return `
+            <div class="goal ${g.done ? 'done' : ''}">
+              <div class="check" onclick="toggleGoal(${i})">${g.done ? '✓' : ''}</div>
+              <div style="flex:1">
+                <div class="goal-title">${escapeHtml(g.title)}</div>
+                <div class="goal-meta">${fmt(g.current)} / ${fmt(g.target)} · ${pct}%</div>
+              </div>
+              <button style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px" onclick="deleteGoal(${i})">×</button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Log
+      const logList = document.getElementById('logList');
+      const logEmpty = document.getElementById('logEmpty');
+      if (!state.log.length) {
+        logList.innerHTML = '';
+        logEmpty.classList.remove('hidden');
+      } else {
+        logEmpty.classList.add('hidden');
+        const sorted = [...state.log].reverse();
+        logList.innerHTML = sorted.map(entry => `
+          <div class="log-item">
+            <div class="log-top">
+              <span class="log-amount ${entry.type}">${entry.type === 'spend' ? '−' : '+'}${fmt(entry.amount)}</span>
+              <span class="log-date">${entry.date}</span>
+            </div>
+            <div class="log-note">${escapeHtml(entry.note || '')}</div>
+          </div>
+        `).join('');
+      }
+
+      // Coach
+      renderCoach();
+
+      // Install banner
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      const banner = document.getElementById('installBanner');
+      if (!isStandalone && !state.installDismissed) {
+        banner.classList.add('show');
+      } else {
+        banner.classList.remove('show');
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ─── Numbers ─────────────────────────────────────────────
+    function saveNumbers() {
+      state.income = parseFloat(document.getElementById('inputIncome').value) || 0;
+      state.fixed = parseFloat(document.getElementById('inputFixed').value) || 0;
+      state.variable = parseFloat(document.getElementById('inputVariable').value) || 0;
+      save();
+      render();
+      toast('Numbers saved');
+    }
+
+    // ─── Goals ───────────────────────────────────────────────
+    function addGoal() {
+      const title = document.getElementById('goalTitle').value.trim();
+      const target = parseFloat(document.getElementById('goalAmount').value) || 0;
+      const current = parseFloat(document.getElementById('goalCurrent').value) || 0;
+      if (!title) {
+        toast('Give the goal a name');
+        return;
+      }
+      state.goals.push({ title, target, current, done: false });
+      document.getElementById('goalTitle').value = '';
+      document.getElementById('goalAmount').value = '';
+      document.getElementById('goalCurrent').value = '';
+      save();
+      render();
+      toast('Goal added');
+    }
+
+    function toggleGoal(i) {
+      state.goals[i].done = !state.goals[i].done;
+      save();
+      render();
+    }
+
+    function deleteGoal(i) {
+      state.goals.splice(i, 1);
+      save();
+      render();
+      toast('Goal removed');
+    }
+
+    // ─── Log ─────────────────────────────────────────────────
+    function addLog() {
+      const type = document.getElementById('logType').value;
+      const amount = parseFloat(document.getElementById('logAmount').value) || 0;
+      const note = document.getElementById('logNote').value.trim();
+      if (!amount) {
+        toast('Enter an amount');
+        return;
+      }
+      const now = new Date();
+      const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      state.log.push({ type, amount, note, date, ts: Date.now() });
+
+      // If it's a spend, optionally bump variable
+      if (type === 'spend') {
+        state.variable = (Number(state.variable) || 0) + amount;
+      }
+
+      document.getElementById('logAmount').value = '';
+      document.getElementById('logNote').value = '';
+      save();
+      render();
+      toast(type === 'spend' ? 'Logged spend' : 'Logged save');
+    }
+
+    // ─── Coach ───────────────────────────────────────────────
+    function renderCoach() {
+      const el = document.getElementById('coachContent');
+      const income = Number(state.income) || 0;
+      const fixed = Number(state.fixed) || 0;
+      const variable = Number(state.variable) || 0;
+      const free = freeToSpend();
+
+      if (!income) {
+        el.innerHTML = `
+          <div class="coach-msg">
+            Set your income and fixed costs on the Numbers tab. Once I have real numbers, the coaching gets specific and uncomfortable — in a good way.
+          </div>
+        `;
+        return;
+      }
+
+      let msgs = [];
+
+      // Fixed cost ratio
+      const fixedRatio = income > 0 ? (fixed / income) * 100 : 0;
+      if (fixedRatio > 60) {
+        msgs.push(`<div class="coach-msg"><strong>Fixed costs are ${fixedRatio.toFixed(0)}% of income.</strong> That's high. Most of your money is already spoken for before you make a single choice. Look hard at subscriptions, car payments, housing, or debt. Structure beats willpower.</div>`);
+      } else if (fixedRatio > 45) {
+        msgs.push(`<div class="coach-msg"><strong>Fixed costs sit at ${fixedRatio.toFixed(0)}% of income.</strong> Manageable, but not loose. Keep an eye on lifestyle creep in the fixed column.</div>`);
+      } else {
+        msgs.push(`<div class="coach-msg"><strong>Fixed costs are ${fixedRatio.toFixed(0)}% of income.</strong> That's solid breathing room. Don't waste it by letting variable spending expand to fill the space.</div>`);
+      }
+
+      // Free to spend
+      if (free < 0) {
+        msgs.push(`<div class="coach-msg"><strong>You are ${fmt(Math.abs(free))} underwater this month.</strong> That's not a motivation problem — it's a math problem. Either income goes up, fixed goes down, or variable gets cut hard. Pick one and act this week.</div>`);
+      } else if (free < 200) {
+        msgs.push(`<div class="coach-msg"><strong>Only ${fmt(free)} left free.</strong> Thin margin. Every unplanned spend matters. Log decisions so you see where the leaks actually are.</div>`);
+      } else if (free < 600) {
+        msgs.push(`<div class="coach-msg"><strong>${fmt(free)} free this month.</strong> Respectable. Protect it. The people who stay broke treat this number as "extra." You won't.</div>`);
+      } else {
+        msgs.push(`<div class="coach-msg"><strong>${fmt(free)} free.</strong> Good position. Now the real test: does this number go into goals and wealth, or does it evaporate into nothing? Put a number on the Goals tab and move money toward it.</div>`);
+      }
+
+      // Goals check
+      if (state.goals.length === 0) {
+        msgs.push(`<div class="coach-msg"><strong>No goals set.</strong> Money without a destination finds one — usually someone else's business. Add at least one concrete target (wedding, emergency fund, debt, whatever is real for you).</div>`);
+      } else {
+        const active = state.goals.filter(g => !g.done);
+        if (active.length) {
+          const top = active[0];
+          const remaining = Math.max(0, top.target - top.current);
+          msgs.push(`<div class="coach-msg"><strong>Top goal: ${escapeHtml(top.title)}</strong> — ${fmt(remaining)} still needed. If free-to-spend is real, route a portion of it here automatically every month.</div>`);
+        }
+      }
+
+      // Log check
+      if (state.log.length < 3) {
+        msgs.push(`<div class="coach-msg"><strong>Log is thin.</strong> Three or more real decisions logged starts to show patterns. Track both the spends and the times you chose not to spend.</div>`);
+      }
+
+      el.innerHTML = msgs.join('');
+    }
+
+    function refreshCoach() {
+      renderCoach();
+      toast('Assessment updated');
+    }
+
+    // ─── Install ─────────────────────────────────────────────
+    function hideInstall() {
+      state.installDismissed = true;
+      save();
+      document.getElementById('installBanner').classList.remove('show');
+    }
+
+    // ─── Tabs ────────────────────────────────────────────────
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ─── Boot ────────────────────────────────────────────────
+    load();
+  </script>
+</body>
+</html>
